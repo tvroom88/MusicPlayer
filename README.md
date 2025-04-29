@@ -1,2 +1,2 @@
 # MusicPlayer
-Free Music Player
+Free And Easiest Music Player
