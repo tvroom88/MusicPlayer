@@ -1,4 +1,4 @@
-package com.aio.fe_music_player.ui
+package com.aio.fe_music_player.screens.activity
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.aio.fe_music_player.R
+import com.aio.fe_music_player.screens.FeMpViewModel
 
 class MainActivity : AppCompatActivity() {
 

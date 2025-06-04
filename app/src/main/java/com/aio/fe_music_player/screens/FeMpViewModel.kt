@@ -1,13 +1,8 @@
-package com.aio.fe_music_player.ui
+package com.aio.fe_music_player.screens
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 
 class FeMpViewModel : ViewModel() {
