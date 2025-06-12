@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
@@ -45,43 +44,26 @@ fun MainScreen(mainViewModel: MainViewModel, navController: NavController) {
     val tabs = listOf("폴더", "나를 위한", "노래", "재생 목록")
     var selectedTab by remember { mutableStateOf("폴더") }
 
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        containerColor = Color.Black
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-        ) {
-            // Toolbar 부분
-            MyToolbar()
-            Spacer(modifier = Modifier.height(20.dp)) // 위쪽 마진 효과
+    Column {
+        // Toolbar 부분
+        MyToolbar()
+        Spacer(modifier = Modifier.height(20.dp)) // 위쪽 마진 효과
 
-            // Tag 부분
-            MyTag(
-                tabs,
-                selectedTab = selectedTab,
-                onTabSelected = { tab -> selectedTab = tab }
-            )
+        // Tag 부분
+        MyTag(
+            tabs,
+            selectedTab = selectedTab,
+            onTabSelected = { tab -> selectedTab = tab }
+        )
 
-            Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-            if (permissionState.hasPermission) {
-                MainContent(mainViewModel, selectedTab, navController)
-
-//                AppNavGraph(navController = navController, mainViewModel = mainViewModel, selectedTab = selectedTab)
-
-//                fun AppNavGraph(
-//                    navController: NavHostController,
-//                    mainViewModel: MainViewModel,
-//                    selectedTab: String,
-//                ) {
-            } else {
-                RequestPermissionScreen(onRequestPermission = {
-                    permissionState.requestPermission()
-                })
-            }
-            // 여기에 Permission 여부에 따라 변경
+        if (permissionState.hasPermission) {
+            MainContent(mainViewModel, selectedTab, navController)
+        } else {
+            RequestPermissionScreen(onRequestPermission = {
+                permissionState.requestPermission()
+            })
         }
     }
 }

@@ -1,14 +1,17 @@
 package com.aio.fe_music_player.navigation
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.aio.fe_music_player.data.model.MusicData
 import com.aio.fe_music_player.screens.mainscreen.MainScreen
 import com.aio.fe_music_player.screens.mainscreen.MainViewModel
 import com.aio.fe_music_player.screens.musiclistscreen.MusicListScreen
+import kotlinx.serialization.json.Json
 
 @Composable
 fun AppNavGraph(
@@ -27,12 +30,12 @@ fun AppNavGraph(
         }
 
         composable(
-            "folderDetail/{folderName}",
-            arguments = listOf(navArgument("folderName") { type = NavType.StringType })
+            "musicList/{musicListJson}",
+            arguments = listOf(navArgument("musicListJson") { type = NavType.StringType })
         ) { backStackEntry ->
-            val folderName = backStackEntry.arguments?.getString("folderName") ?: ""
-//            MusicListScreen(folderName = folderName)
-            MusicListScreen()
+            val json = backStackEntry.arguments?.getString("musicListJson") ?: "[]"
+            val musicList = Json.decodeFromString<List<MusicData>>(Uri.decode(json))
+            MusicListScreen(musicList = musicList)
         }
     }
 }

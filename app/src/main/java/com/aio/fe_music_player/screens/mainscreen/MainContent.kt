@@ -1,7 +1,6 @@
 package com.aio.fe_music_player.screens.mainscreen
 
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
@@ -15,6 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import com.aio.fe_music_player.data.model.MusicFolder
 import com.aio.fe_music_player.screens.mainscreen.folder.Folder
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /**
  * 1. Folder 상태인지
@@ -55,14 +56,9 @@ fun MainContent(
             "폴더" -> Folder(
                 folderList = folderList,
                 onFolderClick = { folder ->
-                    Log.d(
-                        "TestTestTest",
-                        "folder : ${folder.folderName}"
-                    )
-                    val encodedName = Uri.encode(folder.folderName)
-                    navController.navigate("folderDetail/$encodedName")
+                    val jsonList = Uri.encode(Json.encodeToString(folder.musicFile.toList()))
+                    navController.navigate("musicList/$jsonList")
                 })
-
             "노래" -> Text(color = Color.White, text = "노래")
             else -> Text(color = Color.White, text = "Unknown tab")
         }
