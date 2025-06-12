@@ -7,24 +7,52 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModelProvider
 import com.aio.fe_music_player.screens.FeMpViewModel
-import com.aio.fe_music_player.screens.main.MainScreen
+import com.aio.fe_music_player.screens.mainscreen.MainScreen
+import com.aio.fe_music_player.screens.mainscreen.MainViewModel
+import com.aio.fe_music_player.screens.mainscreen.MainViewModelFactory
 import com.aio.fe_music_player.screens.theme.FE_Music_PlayerTheme
+import kotlinx.coroutines.delay
 
 class StartActivity : ComponentActivity() {
 
     private val feMpViewModel: FeMpViewModel by viewModels()
+    private lateinit var mainViewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
+        mainViewModel = ViewModelProvider(
+            this,
+            MainViewModelFactory(this)
+        )[MainViewModel::class.java]
+
+        enableEdgeToEdge()
         setContent {
 
+            var isSplashShown by remember { mutableStateOf(true) }
+
+            // Splash 화면 유지 시간 (예: 2초)
+            LaunchedEffect(Unit) {
+                delay(1000) // 2초 동안 Splash 화면 보여줌
+                isSplashShown = false
+            }
+
             FE_Music_PlayerTheme {
-                MainScreen()
+                if (isSplashShown) {
+                    Text(color = Color.White, text = "splash")
+                } else {
+                    MainScreen(mainViewModel)
+                }
             }
         }
     }
