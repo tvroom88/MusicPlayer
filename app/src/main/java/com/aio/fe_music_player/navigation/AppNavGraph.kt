@@ -6,24 +6,22 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.aio.fe_music_player.screens.mainscreen.MainContent
+import com.aio.fe_music_player.screens.mainscreen.MainScreen
 import com.aio.fe_music_player.screens.mainscreen.MainViewModel
 import com.aio.fe_music_player.screens.musiclistscreen.MusicListScreen
 
 @Composable
 fun AppNavGraph(
-    navController: NavHostController,
     mainViewModel: MainViewModel,
-    selectedTab: String,
+    navController: NavHostController
 ) {
     NavHost(
         navController = navController,
         startDestination = "home"
     ) {
         composable("home") {
-            MainContent(
+            MainScreen(
                 mainViewModel = mainViewModel,
-                selectedTab = selectedTab,
                 navController = navController
             )
         }

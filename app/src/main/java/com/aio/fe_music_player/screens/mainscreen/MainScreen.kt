@@ -23,9 +23,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.aio.fe_music_player.navigation.AppNavGraph
+import androidx.navigation.NavController
 import com.aio.fe_music_player.screens.mainscreen.tag.MyTag
 import com.aio.fe_music_player.screens.mainscreen.toolbar.MyToolbar
 
@@ -35,9 +33,7 @@ import com.aio.fe_music_player.screens.mainscreen.toolbar.MyToolbar
  *  - MainContent
  */
 @Composable
-fun MainScreen(mainViewModel: MainViewModel) {
-
-    val navController = rememberNavController()
+fun MainScreen(mainViewModel: MainViewModel, navController: NavController) {
 
     val context = LocalContext.current
     val permissionState = rememberAudioPermissionState(context) // Permission 승낙 상태
@@ -71,9 +67,9 @@ fun MainScreen(mainViewModel: MainViewModel) {
             Spacer(modifier = Modifier.height(24.dp))
 
             if (permissionState.hasPermission) {
-//                MainContent(mainViewModel, selectedTab)
+                MainContent(mainViewModel, selectedTab, navController)
 
-                AppNavGraph(navController = navController, mainViewModel = mainViewModel, selectedTab = selectedTab)
+//                AppNavGraph(navController = navController, mainViewModel = mainViewModel, selectedTab = selectedTab)
 
 //                fun AppNavGraph(
 //                    navController: NavHostController,

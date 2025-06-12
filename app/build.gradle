@@ -93,4 +93,11 @@ dependencies {
 
     // Compose Navigation
     implementation(libs.androidx.navigation.compose)
+
+    configurations.configureEach {
+        resolutionStrategy {
+            force("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+            force("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+        }
+    }
 }

@@ -16,8 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.compose.rememberNavController
+import com.aio.fe_music_player.navigation.AppNavGraph
 import com.aio.fe_music_player.screens.FeMpViewModel
-import com.aio.fe_music_player.screens.mainscreen.MainScreen
 import com.aio.fe_music_player.screens.mainscreen.MainViewModel
 import com.aio.fe_music_player.screens.mainscreen.MainViewModelFactory
 import com.aio.fe_music_player.screens.theme.FE_Music_PlayerTheme
@@ -36,10 +37,14 @@ class StartActivity : ComponentActivity() {
             MainViewModelFactory(this)
         )[MainViewModel::class.java]
 
+
         enableEdgeToEdge()
         setContent {
 
             var isSplashShown by remember { mutableStateOf(true) }
+
+            // Navigation From MainScreen to MusicListScreen
+            val navController = rememberNavController()
 
             // Splash 화면 유지 시간 (예: 2초)
             LaunchedEffect(Unit) {
@@ -51,7 +56,8 @@ class StartActivity : ComponentActivity() {
                 if (isSplashShown) {
                     Text(color = Color.White, text = "splash")
                 } else {
-                    MainScreen(mainViewModel)
+//                    MainScreen(mainViewModel, navController)
+                    AppNavGraph(mainViewModel, navController)
                 }
             }
         }
