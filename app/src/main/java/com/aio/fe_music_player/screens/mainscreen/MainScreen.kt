@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,8 +35,7 @@ import com.aio.fe_music_player.screens.mainscreen.toolbar.MyToolbar
 @Composable
 fun MainScreen(mainViewModel: MainViewModel, navController: NavController) {
 
-    val context = LocalContext.current
-    val permissionState = rememberAudioPermissionState(context) // Permission 승낙 상태
+    val hasAudioPermission by mainViewModel.hasAudioPermission.collectAsState()
 
     // Status Bar 아이콘을 흰색으로 처리하는 부분
     SetSystemBarsDarkIcons(useDarkIcons = false)
@@ -58,12 +58,10 @@ fun MainScreen(mainViewModel: MainViewModel, navController: NavController) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (permissionState.hasPermission) {
+        if (hasAudioPermission) {
             MainContent(mainViewModel, selectedTab, navController)
         } else {
-            RequestPermissionScreen(onRequestPermission = {
-                permissionState.requestPermission()
-            })
+            RequestPermissionScreen()
         }
     }
 }
@@ -72,7 +70,7 @@ fun MainScreen(mainViewModel: MainViewModel, navController: NavController) {
  * 음악 파일을 불러오는 권한이 없을 경우 보여주는 화면
  */
 @Composable
-fun RequestPermissionScreen(onRequestPermission: () -> Unit) {
+fun RequestPermissionScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
