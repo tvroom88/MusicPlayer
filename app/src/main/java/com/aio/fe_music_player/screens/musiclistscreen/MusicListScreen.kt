@@ -1,5 +1,6 @@
 package com.aio.fe_music_player.screens.musiclistscreen
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,26 +24,40 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.aio.fe_music_player.R
 import com.aio.fe_music_player.data.model.MusicData
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Composable
-fun MusicListScreen(musicList: List<MusicData>) {
+fun MusicListScreen(
+    musicList: List<MusicData>,
+    musicListViewModel: MusicListViewModel,
+    navController: NavController
+) {
     LazyColumn {
         items(musicList.size) { musicIdx ->
-            MusicListItem(musicList[musicIdx])
+            val selectedMusic = musicList[musicIdx]
+
+            MusicListItem(
+                musicData = selectedMusic,
+                musicItemClick = {
+                    val musicJson = Uri.encode(Json.encodeToString<MusicData>(selectedMusic))
+                    navController.navigate("musicPlay/$musicJson")
+                })
         }
     }
 }
 
 @Composable
-fun MusicListItem(musicData: MusicData) {
+fun MusicListItem(musicData: MusicData, musicItemClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
+            .clickable { musicItemClick() }
             .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // 폴더 아이콘
         Image(

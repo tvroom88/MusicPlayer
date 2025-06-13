@@ -60,7 +60,6 @@ class StartActivity : ComponentActivity() {
                 if (isSplashShown) {
                     Text(color = Color.White, text = "splash")
                 } else {
-//                    MainScreen(mainViewModel, navController)
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         containerColor = Color.Black

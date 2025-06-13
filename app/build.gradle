@@ -103,12 +103,18 @@ dependencies {
 
     // JSON
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-
     configurations.all {
         resolutionStrategy {
             force("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
             force("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3")
-            force("org.jetbrains.kotlinx:kotlinx-serialization-runtime:1.6.3") // 혹시라도 필요할 경우
+            force("org.jetbrains.kotlinx:kotlinx-serialization-runtime:1.6.3")
         }
     }
+
+    // ExoPlayer
+    implementation libs.androidx.media3.exoplayer
+    implementation libs.androidx.media3.session
+    implementation libs.androidx.media3.ui // 선택 (PlayerView)
+    implementation(libs.androidx.concurrent.futures.ktx)
+
 }

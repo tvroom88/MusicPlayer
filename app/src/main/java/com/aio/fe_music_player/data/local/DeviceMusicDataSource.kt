@@ -1,5 +1,6 @@
 package com.aio.fe_music_player.data.local
 
+import android.content.ContentUris
 import android.content.Context
 import android.provider.MediaStore
 import com.aio.fe_music_player.data.model.MusicData
@@ -42,10 +43,11 @@ class DeviceMusicDataSource(private val context: Context) {
                 val duration = formattingDuration(cursor.getString(durationCol))
                 val buckId = cursor.getString(bucketIdCol)
                 val bucketDisplay = cursor.getString(bucketDisplayNameCol)
+                val contentUri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
 
                 musicDataList.add(
                     MusicData(
-                        uri.toString(),
+                        contentUri.toString(),
                         name,
                         duration,
                         buckId.toLong(),
@@ -57,12 +59,15 @@ class DeviceMusicDataSource(private val context: Context) {
         return musicDataList
     }
 
-    private fun formattingDuration(duration: String): String {
-        val durationMillis = duration.toLongOrNull() ?: 0L
-        val minutes = durationMillis / 1000 / 60
-        val seconds = (durationMillis / 1000) % 60
-        val durationFormatted = String.format("%d:%02d", minutes, seconds)
+    private fun formattingDuration(duration: String?): String {
 
-        return durationFormatted
+        duration?.let {
+            val durationMillis = it.toLongOrNull() ?: 0L
+            val minutes = durationMillis / 1000 / 60
+            val seconds = (durationMillis / 1000) % 60
+            val durationFormatted = String.format("%d:%02d", minutes, seconds)
+            return durationFormatted
+        }
+        return ""
     }
 }

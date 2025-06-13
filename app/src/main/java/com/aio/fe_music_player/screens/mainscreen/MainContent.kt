@@ -28,9 +28,7 @@ fun MainContent(
     navController: NavController
 ) {
 
-    val musicList
-            by
-            mainViewModel.musicList.collectAsState()
+    val musicList by mainViewModel.musicList.collectAsState()
 
     LaunchedEffect(Unit) {
         mainViewModel.loadMusic()
@@ -59,6 +57,7 @@ fun MainContent(
                     val jsonList = Uri.encode(Json.encodeToString(folder.musicFile.toList()))
                     navController.navigate("musicList/$jsonList")
                 })
+
             "노래" -> Text(color = Color.White, text = "노래")
             else -> Text(color = Color.White, text = "Unknown tab")
         }
