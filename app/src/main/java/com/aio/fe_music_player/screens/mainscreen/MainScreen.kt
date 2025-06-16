@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +28,8 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavController
 import com.aio.fe_music_player.screens.mainscreen.tag.MyTag
 import com.aio.fe_music_player.screens.mainscreen.toolbar.MyToolbar
+import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayerViewModel
+import kotlinx.coroutines.launch
 
 /**
  *  - MyToolbar
@@ -33,9 +37,22 @@ import com.aio.fe_music_player.screens.mainscreen.toolbar.MyToolbar
  *  - MainContent
  */
 @Composable
-fun MainScreen(mainViewModel: MainViewModel, navController: NavController) {
+fun MainScreen(
+    mainViewModel: MainViewModel,
+    mainPlayerViewModel: MusicPlayerViewModel,
+    navController: NavController
+) {
 
     val hasAudioPermission by mainViewModel.hasAudioPermission.collectAsState()
+
+    // controller 초기화
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            mainPlayerViewModel.initController()
+        }
+    }
 
     // Status Bar 아이콘을 흰색으로 처리하는 부분
     SetSystemBarsDarkIcons(useDarkIcons = false)
@@ -66,6 +83,7 @@ fun MainScreen(mainViewModel: MainViewModel, navController: NavController) {
     }
 }
 
+
 /**
  * 음악 파일을 불러오는 권한이 없을 경우 보여주는 화면
  */
@@ -83,9 +101,6 @@ fun RequestPermissionScreen() {
                 color = Color.White
             )
             Spacer(modifier = Modifier.height(16.dp))
-//            Button(onClick = onRequestPermission) {
-//                Text("권한 요청")
-//            }
         }
     }
 }
@@ -104,12 +119,4 @@ fun SetSystemBarsDarkIcons(useDarkIcons: Boolean) {
             controller.isAppearanceLightNavigationBars = useDarkIcons
         }
     }
-}
-
-@Preview
-@Composable
-fun showMain() {
-//    FE_Music_PlayerTheme {
-//        MainScreen(mainViewModel = null)
-//    }
 }

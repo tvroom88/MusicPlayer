@@ -32,6 +32,7 @@ fun AppNavGraph(
         composable("home") {
             MainScreen(
                 mainViewModel = mainViewModel,
+                mainPlayerViewModel = musicPlayerViewModel,
                 navController = navController
             )
         }

@@ -1,8 +1,5 @@
 package com.aio.fe_music_player.screens.musicplayscreen
 
-import android.content.ComponentName
-import android.net.Uri
-import android.util.Log
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -18,31 +15,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.concurrent.futures.await
-import androidx.media3.common.C
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
-import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.session.MediaController
-import androidx.media3.session.SessionToken
 import com.aio.fe_music_player.data.model.MusicData
-import com.aio.fe_music_player.service.MusicPlayerService
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -67,14 +52,11 @@ fun MusicPlayScreen(
     var duration by remember { mutableLongStateOf(0L) }
 
     // controller 초기화
-    val scope = rememberCoroutineScope()
+//    val scope = rememberCoroutineScope()
+//
     LaunchedEffect(musicData) {
-        scope.launch {
-            viewModel.initController(musicList, musicData)
-        }
+        viewModel.setMusic(musicList, musicData)
     }
-
-
 
     LaunchedEffect(isPlaying) {
         if (isPlaying) {

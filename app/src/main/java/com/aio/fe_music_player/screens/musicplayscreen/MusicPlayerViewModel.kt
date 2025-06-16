@@ -30,6 +30,48 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
 
     private val context = getApplication<Application>().applicationContext
 
+    // Controller 초기화
+    suspend fun initController() {
+
+        val sessionToken =
+            SessionToken(context, ComponentName(context, MusicPlayerService::class.java))
+        val newController = MediaController.Builder(context, sessionToken).buildAsync().await()
+        _controller.value = newController
+
+        newController.addListener(object : Player.Listener {
+            override fun onIsPlayingChanged(isPlayingNow: Boolean) {
+                _isPlaying.value = isPlayingNow
+            }
+
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                _currentUri.value = mediaItem?.localConfiguration?.uri
+            }
+        })
+    }
+    
+    // 음악 데이터 세팅
+    fun setMusic(musicList: List<MusicData>, startMusic: MusicData){
+        val mediaItems = musicList.map { music ->
+            MediaItem.Builder()
+                .setUri(Uri.parse(music.uriString))
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setTitle(music.name)
+                        .setArtist(music.artist)
+                        .build()
+                )
+                .build()
+        }
+
+        val startIndex = musicList.indexOfFirst { it.uriString == startMusic.uriString }
+        if (startIndex != -1) {
+            val newController = controller.value
+            newController?.setMediaItems(mediaItems, startIndex, C.TIME_UNSET)
+            newController?.prepare()
+            newController?.playWhenReady = true
+        }
+    }
+
     suspend fun initController(musicList: List<MusicData>, startMusic: MusicData) {
         if (_controller.value == null) {
             val mediaItems = musicList.map { music ->
@@ -44,7 +86,8 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
                     .build()
             }
 
-            val sessionToken = SessionToken(context, ComponentName(context, MusicPlayerService::class.java))
+            val sessionToken =
+                SessionToken(context, ComponentName(context, MusicPlayerService::class.java))
             val newController = MediaController.Builder(context, sessionToken).buildAsync().await()
             _controller.value = newController
 
