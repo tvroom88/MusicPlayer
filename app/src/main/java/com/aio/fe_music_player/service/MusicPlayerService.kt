@@ -17,6 +17,7 @@ import androidx.media3.session.MediaSession
 import com.aio.fe_music_player.screens.activity.StartActivity
 
 
+@UnstableApi
 class MusicPlayerService : MediaLibraryService() {
 
     private lateinit var player: ExoPlayer
@@ -26,26 +27,15 @@ class MusicPlayerService : MediaLibraryService() {
     private lateinit var audioManager: AudioManager
     private lateinit var audioFocusRequest: AudioFocusRequest
 
-    // MediaLibrarySession 콜백 정의 (Controller 연결 허용)
-    private val mediaLibrarySessionCallback = object : MediaLibrarySession.Callback {
-        @OptIn(UnstableApi::class)
-        override fun onConnect(
-            session: MediaSession,
-            controller: MediaSession.ControllerInfo
-        ): MediaSession.ConnectionResult {
-            return MediaSession.ConnectionResult.accept(
-                MediaSession.ConnectionResult.DEFAULT_SESSION_COMMANDS,
-                MediaSession.ConnectionResult.DEFAULT_PLAYER_COMMANDS
-            )
-        }
-    }
+    private val mediaLibrarySessionCallback = object : MediaLibrarySession.Callback {    }
+
 
     @OptIn(UnstableApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate() {
         super.onCreate()
 
-        // 플레이어 및 세션 초기화
+        // ExoPlayer & Media Session
         player = ExoPlayer.Builder(this).build()
 
         val intent = Intent(this, StartActivity::class.java).apply {
@@ -60,9 +50,15 @@ class MusicPlayerService : MediaLibraryService() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        mediaLibrarySession = MediaLibrarySession.Builder(this, player, mediaLibrarySessionCallback)
-            .setSessionActivity(pendingIntent)  // 알림 클릭 시 실행될 Activity Intent 등록
-            .build()
+//        mediaLibrarySession =
+//            MediaLibrarySession.Builder(this, player, MusicPlayerSessionCallback())
+//                .setSessionActivity(pendingIntent)  // 알림 클릭 시 실행될 Activity Intent 등록 )
+//                .build()
+
+        mediaLibrarySession =
+            MediaLibrarySession.Builder(this, player, mediaLibrarySessionCallback)
+                .setSessionActivity(pendingIntent)  // 알림 클릭 시 실행될 Activity Intent 등록 )
+                .build()
 
         // 현재 Audio에 Focus가 맞춰져있는지 아닌지 (다른 미디어가 재생될 경우 정지를 위해)
         audioFocusListener = AudioFocusListener(player)

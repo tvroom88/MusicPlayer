@@ -50,15 +50,8 @@ class StartActivity : ComponentActivity() {
     private var permissionRequested = false // 권한 요청 중복 방지용
     private var postNotificationPermissionRequested = false
 
-    // Notification
-    private val CHANNEL_ID = "test_channel"
-    private val NOTIFICATION_ID = 1234
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        createNotificationChannel()
-        showTestNotification()
 
         mainViewModel = ViewModelProvider(
             this,
@@ -140,41 +133,6 @@ class StartActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "테스트 채널",
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = "테스트용 알림 채널"
-            }
-            val manager = getSystemService(NotificationManager::class.java)
-            manager.createNotificationChannel(channel)
-        }
-    }
-
-    private fun showTestNotification() {
-        val intent = Intent(this, StartActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("테스트 알림")
-            .setContentText("이 알림을 누르면 StartActivity가 열립니다.")
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .build()
-
-        val manager = getSystemService(NotificationManager::class.java)
-        manager.notify(NOTIFICATION_ID, notification)
     }
 }
 

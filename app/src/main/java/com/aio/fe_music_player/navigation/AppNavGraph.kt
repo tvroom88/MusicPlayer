@@ -14,6 +14,7 @@ import com.aio.fe_music_player.screens.mainscreen.MainViewModel
 import com.aio.fe_music_player.screens.musiclistscreen.MusicListScreen
 import com.aio.fe_music_player.screens.musiclistscreen.MusicListViewModel
 import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayScreen
+import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayerViewModel
 import kotlinx.serialization.json.Json
 
 @Composable
@@ -21,6 +22,9 @@ fun AppNavGraph(
     mainViewModel: MainViewModel,
     navController: NavHostController
 ) {
+
+    val musicPlayerViewModel: MusicPlayerViewModel = viewModel()
+
     NavHost(
         navController = navController,
         startDestination = "home"
@@ -45,17 +49,29 @@ fun AppNavGraph(
             MusicListScreen(
                 musicList = musicList,
                 musicListViewModel,
-                navController
+                navController,
+                viewModel = musicPlayerViewModel
             )
         }
 
         composable(
-            "musicPlay/{musicJson}",
-            arguments = listOf(navArgument("musicJson") { type = NavType.StringType })
+            "musicPlay/{musicJson}/{musicListJson}",
+            arguments = listOf(
+                navArgument("musicJson") { type = NavType.StringType },
+                navArgument("musicListJson") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
             val musicJson = backStackEntry.arguments?.getString("musicJson") ?: "{}"
             val musicData = Json.decodeFromString<MusicData>(Uri.decode(musicJson))
-            MusicPlayScreen(musicData = musicData)
+
+            val musicListJson = backStackEntry.arguments?.getString("musicListJson") ?: "[]"
+            val musicList = Json.decodeFromString<List<MusicData>>(Uri.decode(musicListJson))
+
+            MusicPlayScreen(
+                musicData = musicData,
+                musicList = musicList,
+                viewModel = musicPlayerViewModel
+            )
         }
     }
 

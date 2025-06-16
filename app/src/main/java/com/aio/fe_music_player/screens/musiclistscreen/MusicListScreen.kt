@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.aio.fe_music_player.R
 import com.aio.fe_music_player.data.model.MusicData
+import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayerViewModel
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -34,20 +35,27 @@ import kotlinx.serialization.json.Json
 fun MusicListScreen(
     musicList: List<MusicData>,
     musicListViewModel: MusicListViewModel,
-    navController: NavController
+    navController: NavController,
+    viewModel: MusicPlayerViewModel
 ) {
-    LazyColumn {
-        items(musicList.size) { musicIdx ->
-            val selectedMusic = musicList[musicIdx]
+    Column {
+        LazyColumn {
+            items(musicList.size) { musicIdx ->
+                val selectedMusic = musicList[musicIdx]
 
-            MusicListItem(
-                musicData = selectedMusic,
-                musicItemClick = {
-                    val musicJson = Uri.encode(Json.encodeToString<MusicData>(selectedMusic))
-                    navController.navigate("musicPlay/$musicJson")
-                })
+                MusicListItem(
+                    musicData = selectedMusic,
+                    musicItemClick = {
+                        val musicJson = Uri.encode(Json.encodeToString(selectedMusic))
+                        val musicListJson = Uri.encode(Json.encodeToString(musicList))
+
+                        navController.navigate("musicPlay/$musicJson/$musicListJson")
+                    })
+            }
         }
+        BottomPlayer()
     }
+
 }
 
 @Composable
@@ -92,3 +100,26 @@ fun MusicListItem(musicData: MusicData, musicItemClick: () -> Unit) {
         }
     }
 }
+
+
+//@Composable
+//fun BottomPlayer(music: MusicData, onClick: () -> Unit) {
+//    Row(
+//        Modifier
+//            .fillMaxWidth()
+//            .height(56.dp)
+//            .background(Color.DarkGray)
+//            .clickable { onClick() },
+//        verticalAlignment = Alignment.CenterVertically,
+//        horizontalArrangement = Arrangement.Start
+//    ) {
+//        Text(music.name, color = Color.White, modifier = Modifier.padding(start = 16.dp))
+//        // 재생/일시정지 버튼 등 추가 가능
+//    }
+//}
+
+@Composable
+fun BottomPlayer() {
+    Text(text = "hihihi", color = Color.White)
+}
+

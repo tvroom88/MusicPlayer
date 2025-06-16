@@ -8,5 +8,6 @@ data class MusicData(
     var name: String,
     var duration: String = "",
     var bucketId: Long = 0,
-    var bucketName: String = ""
+    var bucketName: String = "",
+    var artist: String = "unKnown"
 )
