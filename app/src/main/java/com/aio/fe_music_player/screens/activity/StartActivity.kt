@@ -1,9 +1,18 @@
 package com.aio.fe_music_player.screens.activity
 
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +27,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import com.aio.fe_music_player.navigation.AppNavGraph
@@ -32,6 +44,11 @@ class StartActivity : ComponentActivity() {
 
     private val feMpViewModel: FeMpViewModel by viewModels()
     private lateinit var mainViewModel: MainViewModel
+    private lateinit var audioPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var postNotificationPermissionLauncher: ActivityResultLauncher<String>
+
+    private var permissionRequested = false // 권한 요청 중복 방지용
+    private var postNotificationPermissionRequested = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +59,28 @@ class StartActivity : ComponentActivity() {
         )[MainViewModel::class.java]
 
 
+        // 권한 검사 및 요청
+        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Manifest.permission.READ_MEDIA_AUDIO
+        } else {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        }
+        val postNotificationPermission = Manifest.permission.POST_NOTIFICATIONS
+
+        // 권한 요청 콜백 등록
+        audioPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+                mainViewModel.updateAudioPermission(granted)
+            }
+
+        postNotificationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted -> }
+
+
         enableEdgeToEdge()
         setContent {
 
             var isSplashShown by remember { mutableStateOf(true) }
+            val context = LocalContext.current
 
             // Navigation From MainScreen to MusicListScreen
             val navController = rememberNavController()
@@ -54,6 +89,30 @@ class StartActivity : ComponentActivity() {
             LaunchedEffect(Unit) {
                 delay(1000) // 2초 동안 Splash 화면 보여줌
                 isSplashShown = false
+            }
+
+            // Splash 끝나면 권한 요청 처리
+            LaunchedEffect(isSplashShown) {
+                if (!isSplashShown && !permissionRequested) {
+                    permissionRequested = true
+
+                    if (ContextCompat.checkSelfPermission(
+                            context,
+                            permission
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        mainViewModel.updateAudioPermission(true)
+                    } else {
+                        audioPermissionLauncher.launch(permission)
+                    }
+                }
+
+                if (!postNotificationPermissionRequested && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    postNotificationPermissionRequested = true
+                    if (ContextCompat.checkSelfPermission(context, postNotificationPermission) != PackageManager.PERMISSION_GRANTED) {
+                        postNotificationPermissionLauncher.launch(postNotificationPermission)
+                    }
+                }
             }
 
             FE_Music_PlayerTheme {

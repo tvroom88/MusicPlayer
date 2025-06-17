@@ -4,9 +4,11 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.aio.fe_music_player.R
 import com.aio.fe_music_player.data.model.MusicData
+import com.aio.fe_music_player.screens.bottomplay.BottomPlayer
+import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayerViewModel
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -34,18 +40,39 @@ import kotlinx.serialization.json.Json
 fun MusicListScreen(
     musicList: List<MusicData>,
     musicListViewModel: MusicListViewModel,
-    navController: NavController
+    navController: NavController,
+    viewModel: MusicPlayerViewModel
 ) {
-    LazyColumn {
-        items(musicList.size) { musicIdx ->
-            val selectedMusic = musicList[musicIdx]
 
-            MusicListItem(
-                musicData = selectedMusic,
-                musicItemClick = {
-                    val musicJson = Uri.encode(Json.encodeToString<MusicData>(selectedMusic))
-                    navController.navigate("musicPlay/$musicJson")
-                })
+    val controller by viewModel.controller.collectAsState()
+    val isPlaying by viewModel.isPlaying.collectAsState() // 현재 play 중인지 체크 (Play 혹은 Pause 버튼 표시에 사용)
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        LazyColumn {
+            items(musicList.size) { musicIdx ->
+                val selectedMusic = musicList[musicIdx]
+
+                MusicListItem(
+                    musicData = selectedMusic,
+                    musicItemClick = {
+                        val musicJson = Uri.encode(Json.encodeToString(selectedMusic))
+                        val musicListJson = Uri.encode(Json.encodeToString(musicList))
+
+                        navController.navigate("musicPlay/$musicJson/$musicListJson")
+                    })
+            }
+        }
+        // 하단 고정 플레이어
+        if (controller?.currentMediaItem != null) {
+            controller?.let {
+                BottomPlayer(
+                    controller = it,
+                    isPlaying = isPlaying,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                )
+            }
         }
     }
 }

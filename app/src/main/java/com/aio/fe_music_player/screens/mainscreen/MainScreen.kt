@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,14 +18,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.NavController
 import com.aio.fe_music_player.screens.mainscreen.tag.MyTag
 import com.aio.fe_music_player.screens.mainscreen.toolbar.MyToolbar
+import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayerViewModel
 
 /**
  *  - MyToolbar
@@ -32,10 +32,13 @@ import com.aio.fe_music_player.screens.mainscreen.toolbar.MyToolbar
  *  - MainContent
  */
 @Composable
-fun MainScreen(mainViewModel: MainViewModel, navController: NavController) {
+fun MainScreen(
+    mainViewModel: MainViewModel,
+    mainPlayerViewModel: MusicPlayerViewModel,
+    navController: NavController
+) {
 
-    val context = LocalContext.current
-    val permissionState = rememberAudioPermissionState(context) // Permission 승낙 상태
+    val hasAudioPermission by mainViewModel.hasAudioPermission.collectAsState()
 
     // Status Bar 아이콘을 흰색으로 처리하는 부분
     SetSystemBarsDarkIcons(useDarkIcons = false)
@@ -58,21 +61,25 @@ fun MainScreen(mainViewModel: MainViewModel, navController: NavController) {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (permissionState.hasPermission) {
-            MainContent(mainViewModel, selectedTab, navController)
+        if (hasAudioPermission) {
+            MainContent(
+                mainViewModel,
+                mainPlayerViewModel,
+                selectedTab,
+                navController
+            )
         } else {
-            RequestPermissionScreen(onRequestPermission = {
-                permissionState.requestPermission()
-            })
+            RequestPermissionScreen()
         }
     }
 }
+
 
 /**
  * 음악 파일을 불러오는 권한이 없을 경우 보여주는 화면
  */
 @Composable
-fun RequestPermissionScreen(onRequestPermission: () -> Unit) {
+fun RequestPermissionScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -85,9 +92,6 @@ fun RequestPermissionScreen(onRequestPermission: () -> Unit) {
                 color = Color.White
             )
             Spacer(modifier = Modifier.height(16.dp))
-//            Button(onClick = onRequestPermission) {
-//                Text("권한 요청")
-//            }
         }
     }
 }
@@ -106,12 +110,4 @@ fun SetSystemBarsDarkIcons(useDarkIcons: Boolean) {
             controller.isAppearanceLightNavigationBars = useDarkIcons
         }
     }
-}
-
-@Preview
-@Composable
-fun showMain() {
-//    FE_Music_PlayerTheme {
-//        MainScreen(mainViewModel = null)
-//    }
 }

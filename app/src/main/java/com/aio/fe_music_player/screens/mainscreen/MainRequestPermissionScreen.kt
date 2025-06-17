@@ -24,6 +24,13 @@ fun rememberAudioPermissionState(context: Context): PermissionState {
         Manifest.permission.READ_EXTERNAL_STORAGE
     }
 
+    // 알림 권한 (Android 13 이상)
+    val notificationPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Manifest.permission.POST_NOTIFICATIONS
+    } else {
+        null
+    }
+
     var hasPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
