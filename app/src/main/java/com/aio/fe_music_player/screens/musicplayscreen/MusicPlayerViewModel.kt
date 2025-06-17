@@ -19,13 +19,13 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class MusicPlayerViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val _controller = MutableStateFlow<MediaController?>(null)
+    private var _controller = MutableStateFlow<MediaController?>(null)
     val controller: StateFlow<MediaController?> = _controller.asStateFlow()
 
-    private val _isPlaying = MutableStateFlow(false)
+    private var _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
 
-    private val _currentUri = MutableStateFlow<Uri?>(null)
+    private var _currentUri = MutableStateFlow<Uri?>(null)
     val currentUri: StateFlow<Uri?> = _currentUri.asStateFlow()
 
     private val context = getApplication<Application>().applicationContext
@@ -48,9 +48,9 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
             }
         })
     }
-    
+
     // 음악 데이터 세팅
-    fun setMusic(musicList: List<MusicData>, startMusic: MusicData){
+    fun setMusic(musicList: List<MusicData>, startMusic: MusicData) {
         val mediaItems = musicList.map { music ->
             MediaItem.Builder()
                 .setUri(Uri.parse(music.uriString))
@@ -70,6 +70,10 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
             newController?.prepare()
             newController?.playWhenReady = true
         }
+    }
+
+    fun getCurrentItemFromForegroundService(): MediaItem? {
+        return controller.value?.currentMediaItem
     }
 
     suspend fun initController(musicList: List<MusicData>, startMusic: MusicData) {
@@ -130,6 +134,12 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
 
     fun releaseController() {
         _controller.value?.release()
+        _controller.value = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        controller.value?.release()
         _controller.value = null
     }
 }
