@@ -3,6 +3,7 @@ package com.aio.fe_music_player.screens.musicplayscreen
 import android.app.Application
 import android.content.ComponentName
 import android.net.Uri
+import android.util.Log
 import androidx.concurrent.futures.await
 import androidx.lifecycle.AndroidViewModel
 import androidx.media3.common.C
@@ -22,13 +23,21 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
     private var _controller = MutableStateFlow<MediaController?>(null)
     val controller: StateFlow<MediaController?> = _controller.asStateFlow()
 
-    private var _isPlaying = MutableStateFlow(false)
+    private var _isPlaying = MutableStateFlow(true)
     val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
 
     private var _currentUri = MutableStateFlow<Uri?>(null)
     val currentUri: StateFlow<Uri?> = _currentUri.asStateFlow()
 
     private val context = getApplication<Application>().applicationContext
+
+    private var _isFirst = MutableStateFlow(true)
+    val isFirst: StateFlow<Boolean> = _isFirst.asStateFlow()
+
+
+    fun setIsFirstTrue(){
+        _isFirst.value = true
+    }
 
     // Controller 초기화
     suspend fun initController() {
@@ -41,6 +50,12 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
         newController.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlayingNow: Boolean) {
                 _isPlaying.value = isPlayingNow
+
+                // 첫번째를 체크해주기 위해 && _isPlaying가 false 에서 true로 변경
+                if(_isFirst.value  && _isPlaying.value){
+                    _isFirst.value = false
+                }
+                Log.d("TestTestTest","isPlayingValue : ${_isPlaying.value}")
             }
 
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
