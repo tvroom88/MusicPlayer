@@ -39,20 +39,6 @@ fun MainContent(
     val controller by mainPlayerViewModel.controller.collectAsState()
     val isPlaying by mainPlayerViewModel.isPlaying.collectAsState() // 현재 play 중인지 체크 (Play 혹은 Pause 버튼 표시에 사용)
 
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-
-        // 음악 로드
-        mainViewModel.loadMusic()
-
-        // controller 초기화
-        scope.launch {
-            mainPlayerViewModel.initController()
-        }
-    }
-
-
     val folderList = remember(musicList) {
         musicList.groupBy { it.bucketId to it.bucketName } // folderId와 folderName 기준으로 그룹화
             .map { (key, musics) ->

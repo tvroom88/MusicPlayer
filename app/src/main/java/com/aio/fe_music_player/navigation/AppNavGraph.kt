@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import com.aio.fe_music_player.data.model.MusicData
 import com.aio.fe_music_player.screens.mainscreen.MainScreen
 import com.aio.fe_music_player.screens.mainscreen.MainViewModel
+import com.aio.fe_music_player.screens.mainscreen.toolbar.inside.SearchScreen
 import com.aio.fe_music_player.screens.musiclistscreen.MusicListScreen
 import com.aio.fe_music_player.screens.musiclistscreen.MusicListViewModel
 import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayScreen
@@ -33,6 +34,14 @@ fun AppNavGraph(
             MainScreen(
                 mainViewModel = mainViewModel,
                 mainPlayerViewModel = musicPlayerViewModel,
+                navController = navController
+            )
+        }
+
+        // search
+        composable("search") {
+            SearchScreen(
+                mainViewModel = mainViewModel,
                 navController = navController
             )
         }

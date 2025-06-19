@@ -1,10 +1,9 @@
-package com.aio.fe_music_player.screens.musiclistscreen
+package com.aio.fe_music_player.screens.mainscreen.toolbar.inside
 
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,8 +15,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,56 +29,66 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.aio.fe_music_player.R
 import com.aio.fe_music_player.data.model.MusicData
-import com.aio.fe_music_player.screens.bottomplay.BottomPlayer
-import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayerViewModel
+import com.aio.fe_music_player.screens.mainscreen.MainViewModel
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MusicListScreen(
-    musicList: List<MusicData>,
-    musicListViewModel: MusicListViewModel,
-    navController: NavController,
-    viewModel: MusicPlayerViewModel
-) {
+fun SearchScreen(mainViewModel: MainViewModel, navController: NavController) {
+    val musicList by mainViewModel.musicList.collectAsState()
+    val query by mainViewModel.searchQuery.collectAsState()
 
-    val controller by viewModel.controller.collectAsState()
-    val isPlaying by viewModel.isPlaying.collectAsState() // 현재 play 중인지 체크 (Play 혹은 Pause 버튼 표시에 사용)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        // 검색창
+        OutlinedTextField(
+            value = query,
+            onValueChange = { mainViewModel.updateSearchQuery(it) },
+            label = { Text("검색", color = Color.White) },
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(color = Color.White), // ✅ 텍스트 색상은 여기서 설정
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                focusedBorderColor = Color.White,
+                unfocusedBorderColor = Color.White,
+                cursorColor = Color.White,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.White
+            )
+        )
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn {
-            items(musicList.size) { musicIdx ->
-                val selectedMusic = musicList[musicIdx]
+        Spacer(modifier = Modifier.height(16.dp))
 
-                MusicListItem(
-                    musicData = selectedMusic,
-                    musicItemClick = {
-                        val musicJson = Uri.encode(Json.encodeToString(selectedMusic))
-                        val musicListJson = Uri.encode(Json.encodeToString(musicList))
-
-                        navController.navigate("musicPlay/$musicJson/$musicListJson")
-                    })
-            }
+        // 검색된 음악만 필터링
+        val filteredMusic = musicList.filter {
+            it.name.contains(query, ignoreCase = true)
         }
-        // 하단 고정 플레이어
-        if (controller?.currentMediaItem != null) {
-            controller?.let {
-                BottomPlayer(
-                    controller = it,
-                    isPlaying = isPlaying,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                )
+
+        // 리스트 출력
+        LazyColumn {
+            items(filteredMusic.size) { idx ->
+                val selectedMusic = filteredMusic[idx]
+                MusicListItem(musicData = selectedMusic, musicItemClick = {
+                    val musicJson = Uri.encode(Json.encodeToString(selectedMusic))
+                    val musicListJson = Uri.encode(Json.encodeToString(musicList))
+                    navController.navigate("musicPlay/$musicJson/$musicListJson") {
+                        popUpTo("search") { inclusive = true }
+                    }
+                })
             }
         }
     }
 }
+
 
 @Composable
 fun MusicListItem(musicData: MusicData, musicItemClick: () -> Unit) {
@@ -102,7 +114,7 @@ fun MusicListItem(musicData: MusicData, musicItemClick: () -> Unit) {
         Spacer(modifier = Modifier.width(12.dp))
 
         Column {
-            
+
             // 1. 음악 이름
             Text(
                 text = musicData.name,
@@ -123,3 +135,11 @@ fun MusicListItem(musicData: MusicData, musicItemClick: () -> Unit) {
         }
     }
 }
+
+
+//val musicJson = Uri.encode(Json.encodeToString(musicData))
+//val musicListJson = Uri.encode(Json.encodeToString(musicList))
+//
+//navController.navigate("musicPlay/$musicJson/$musicListJson") {
+//    popUpTo("search") { inclusive = true } // ✅ SearchScreen을 스택에서 제거
+//}

@@ -12,13 +12,16 @@ import kotlinx.coroutines.flow.asStateFlow
 
 class MainViewModel(private val musicRepository: MusicRepository) : ViewModel() {
 
+    // 음악 권한 불러오는 부분
+    private val _hasAudioPermission = MutableStateFlow(false)
+    val hasAudioPermission: StateFlow<Boolean> = _hasAudioPermission.asStateFlow()
+
     // 음악 데이터를 예시로 List<String>으로 처리 (파일명, 제목 등)
     private val _musicList = MutableStateFlow<List<MusicData>>(emptyList())
     val musicList: StateFlow<List<MusicData>> = _musicList
 
-    // 음악 권한 불러오는 부분
-    private val _hasAudioPermission = MutableStateFlow(false)
-    val hasAudioPermission: StateFlow<Boolean> = _hasAudioPermission.asStateFlow()
+    // 검색어를 위한 상태
+    var searchQuery = MutableStateFlow("")
 
     fun updateAudioPermission(granted: Boolean) {
         _hasAudioPermission.value = granted
@@ -27,6 +30,10 @@ class MainViewModel(private val musicRepository: MusicRepository) : ViewModel() 
     fun loadMusic() {
         val data = musicRepository.loadMusicData()
         _musicList.value = data
+    }
+
+    fun updateSearchQuery(query: String) {
+        searchQuery.value = query
     }
 }
 

@@ -80,6 +80,7 @@ fun MusicPlayScreen(
     }
 
     val lifecycleOwner = LocalLifecycleOwner.current
+
     // 화면에서 벗어날 때 isFirst = true로 복구
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
