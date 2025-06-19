@@ -21,7 +21,16 @@ class MainViewModel(private val musicRepository: MusicRepository) : ViewModel() 
     val musicList: StateFlow<List<MusicData>> = _musicList
 
     // 검색어를 위한 상태
-    var searchQuery = MutableStateFlow("")
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery
+
+    // 선택된 음악
+    private val _selectedMusic = MutableStateFlow<MusicData?>(null)
+    val selectedMusic: StateFlow<MusicData?> = _selectedMusic
+
+    // Query에 의해 걸러진 음악
+    private val _searchedMusicList = MutableStateFlow<List<MusicData>>(emptyList())
+    val searchedMusicList: StateFlow<List<MusicData>> = _searchedMusicList
 
     fun updateAudioPermission(granted: Boolean) {
         _hasAudioPermission.value = granted
@@ -33,8 +42,17 @@ class MainViewModel(private val musicRepository: MusicRepository) : ViewModel() 
     }
 
     fun updateSearchQuery(query: String) {
-        searchQuery.value = query
+        _searchQuery.value = query
     }
+
+    fun setSelectedMusic(music: MusicData) {
+        _selectedMusic.value = music
+    }
+
+    fun setSearchedMusicList(searchedMusicList : List<MusicData>){
+        _searchedMusicList.value = searchedMusicList
+    }
+
 }
 
 class MainViewModelFactory(private val context: Context) : ViewModelProvider.Factory {

@@ -64,23 +64,10 @@ fun AppNavGraph(
             )
         }
 
-        composable(
-            "musicPlay/{musicJson}/{musicListJson}",
-            arguments = listOf(
-                navArgument("musicJson") { type = NavType.StringType },
-                navArgument("musicListJson") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val musicJson = backStackEntry.arguments?.getString("musicJson") ?: "{}"
-            val musicData = Json.decodeFromString<MusicData>(Uri.decode(musicJson))
-
-            val musicListJson = backStackEntry.arguments?.getString("musicListJson") ?: "[]"
-            val musicList = Json.decodeFromString<List<MusicData>>(Uri.decode(musicListJson))
-
+        composable("musicPlay") {
             MusicPlayScreen(
-                musicData = musicData,
-                musicList = musicList,
-                viewModel = musicPlayerViewModel
+                viewModel = musicPlayerViewModel,
+                mainViewModel = mainViewModel
             )
         }
     }

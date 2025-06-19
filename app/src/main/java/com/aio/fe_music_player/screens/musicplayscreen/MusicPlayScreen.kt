@@ -38,16 +38,21 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import com.aio.fe_music_player.R
-import com.aio.fe_music_player.data.model.MusicData
+import com.aio.fe_music_player.screens.mainscreen.MainViewModel
 import kotlinx.coroutines.delay
 
 @OptIn(UnstableApi::class)
 @Composable
 fun MusicPlayScreen(
-    musicData: MusicData,
-    musicList: List<MusicData>,
-    viewModel: MusicPlayerViewModel
+    viewModel: MusicPlayerViewModel,
+    mainViewModel: MainViewModel
 ) {
+    /**
+     *     musicData: MusicData,
+     *     musicList: List<MusicData>,
+     */
+    val musicData by mainViewModel.selectedMusic.collectAsState()
+    val musicList by mainViewModel.searchedMusicList.collectAsState()
 
     val controller by viewModel.controller.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState() // 현재 play 중인지 체크 (Play 혹은 Pause 버튼 표시에 사용)
@@ -64,7 +69,8 @@ fun MusicPlayScreen(
     val isFirst by viewModel.isFirst.collectAsState()
 
     LaunchedEffect(musicData) {
-        viewModel.setMusic(musicList, musicData)
+        // Music Player에 Music 세팅
+        musicData?.let { viewModel.setMusic(musicList, it) }
     }
 
     LaunchedEffect(isPlaying) {
@@ -105,7 +111,7 @@ fun MusicPlayScreen(
 
         // Title : Music Name
         Text(
-            text = currentMusic.name,
+            text = currentMusic?.name ?: "",
             style = MaterialTheme.typography.headlineMedium,
             color = Color.White
         )
