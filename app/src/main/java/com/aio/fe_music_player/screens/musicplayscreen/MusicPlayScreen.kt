@@ -24,9 +24,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -39,7 +37,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import com.aio.fe_music_player.R
 import com.aio.fe_music_player.screens.mainscreen.MainViewModel
-import kotlinx.coroutines.delay
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -63,25 +60,21 @@ fun MusicPlayScreen(
     }
 
     // 재생 시간 상태
-    var currentPosition by remember { mutableLongStateOf(0L) }
-    var duration by remember { mutableLongStateOf(0L) }
+    val currentPosition by viewModel.currentPosition.collectAsState()
+    val duration by viewModel.duration.collectAsState()
 
     val isFirst by viewModel.isFirst.collectAsState()
 
     LaunchedEffect(musicData) {
-        // Music Player에 Music 세팅
+        // Music Player에 Music 세팅 + 재생
         musicData?.let { viewModel.setMusic(musicList, it) }
     }
 
     LaunchedEffect(isPlaying) {
-        if (isPlaying) {
-            while (true) {
-                val pos = controller?.currentPosition ?: 0L
-                val dur = controller?.duration?.takeIf { it > 0 } ?: 0L
-                currentPosition = pos
-                duration = dur
-                delay(500)
-            }
+        if(isPlaying){
+            viewModel.startTrackingPlayback()
+        }else{
+            viewModel.stopTrackingPlayback() // 직접 멈추는 함수 필요 (Job 취소용)
         }
     }
 
@@ -203,7 +196,6 @@ fun MusicControlButtons(
         ) {
             // 처음에는 isFirst가 true
             if (isFirst || isPlaying) {
-                Log.d("CheckCheckCheck", "111. isFirst : $isFirst, isPlaying : $isPlaying")
                 Image(
                     painter = painterResource(id = R.drawable.music_pause),
                     contentDescription = "동그란 버튼 이미지",
@@ -211,9 +203,6 @@ fun MusicControlButtons(
                     contentScale = ContentScale.Crop
                 )
             } else {
-
-                Log.d("CheckCheckCheck", "222. isFirst : $isFirst, isPlaying : $isPlaying")
-
                 Image(
                     painter = painterResource(id = R.drawable.music_play),
                     contentDescription = "동그란 버튼 이미지",

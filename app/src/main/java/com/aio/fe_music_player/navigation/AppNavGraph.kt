@@ -13,7 +13,6 @@ import com.aio.fe_music_player.screens.mainscreen.MainScreen
 import com.aio.fe_music_player.screens.mainscreen.MainViewModel
 import com.aio.fe_music_player.screens.mainscreen.toolbar.inside.SearchScreen
 import com.aio.fe_music_player.screens.musiclistscreen.MusicListScreen
-import com.aio.fe_music_player.screens.musiclistscreen.MusicListViewModel
 import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayScreen
 import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayerViewModel
 import kotlinx.serialization.json.Json
@@ -33,7 +32,7 @@ fun AppNavGraph(
         composable("home") {
             MainScreen(
                 mainViewModel = mainViewModel,
-                mainPlayerViewModel = musicPlayerViewModel,
+                musicPlayerViewModel = musicPlayerViewModel,
                 navController = navController
             )
         }
@@ -53,13 +52,12 @@ fun AppNavGraph(
             }) // List 넘겨주는 방식
         ) { backStackEntry ->
 
-            val musicListViewModel: MusicListViewModel = viewModel()
             val json = backStackEntry.arguments?.getString("musicListJson") ?: "[]"
             val musicList = Json.decodeFromString<List<MusicData>>(Uri.decode(json))
             MusicListScreen(
                 musicList = musicList,
-                musicListViewModel,
-                navController,
+                mainViewModel = mainViewModel,
+                navController = navController,
                 viewModel = musicPlayerViewModel
             )
         }

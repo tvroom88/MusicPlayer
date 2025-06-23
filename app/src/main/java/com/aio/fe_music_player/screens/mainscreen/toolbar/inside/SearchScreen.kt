@@ -80,15 +80,10 @@ fun SearchScreen(mainViewModel: MainViewModel, navController: NavController) {
                 MusicListItem(musicData = selectedMusic, musicItemClick = {
                     mainViewModel.setSelectedMusic(selectedMusic)
                     mainViewModel.setSearchedMusicList(filteredMusic)
-//                    val musicJson = Uri.encode(Json.encodeToString(selectedMusic))
-//                    val musicListJson = Uri.encode(Json.encodeToString(filteredMusic))
 
                     navController.navigate("musicPlay") {
                         popUpTo("search") { inclusive = true }
                     }
-//                    navController.navigate("musicPlay/$musicJson/$musicListJson") {
-//                        popUpTo("search") { inclusive = true }
-//                    }
                 })
             }
         }

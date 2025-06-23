@@ -39,6 +39,16 @@ fun MainContent(
     val controller by mainPlayerViewModel.controller.collectAsState()
     val isPlaying by mainPlayerViewModel.isPlaying.collectAsState() // 현재 play 중인지 체크 (Play 혹은 Pause 버튼 표시에 사용)
 
+
+    LaunchedEffect(isPlaying) {
+        if(isPlaying){
+            mainPlayerViewModel.startTrackingPlayback()
+        }else{
+            mainPlayerViewModel.stopTrackingPlayback() // 직접 멈추는 함수 필요 (Job 취소용)
+        }
+    }
+
+
     val folderList = remember(musicList) {
         musicList.groupBy { it.bucketId to it.bucketName } // folderId와 folderName 기준으로 그룹화
             .map { (key, musics) ->
@@ -74,6 +84,7 @@ fun MainContent(
                 BottomPlayer(
                     controller = it,
                     isPlaying = isPlaying,
+                    viewModel = mainPlayerViewModel,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()

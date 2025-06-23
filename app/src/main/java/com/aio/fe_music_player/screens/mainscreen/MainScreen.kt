@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(
     mainViewModel: MainViewModel,
-    mainPlayerViewModel: MusicPlayerViewModel,
+    musicPlayerViewModel: MusicPlayerViewModel,
     navController: NavController
 ) {
 
@@ -68,7 +68,7 @@ fun MainScreen(
 
             // controller 초기화
             scope.launch {
-                mainPlayerViewModel.initController()
+                musicPlayerViewModel.initController()
             }
         }
 
@@ -94,7 +94,7 @@ fun MainScreen(
         if (hasAudioPermission) {
             MainContent(
                 mainViewModel,
-                mainPlayerViewModel,
+                musicPlayerViewModel,
                 selectedTab,
                 navController
             )
