@@ -48,9 +48,9 @@ fun MusicListScreen(
     val isPlaying by viewModel.isPlaying.collectAsState() // 현재 play 중인지 체크 (Play 혹은 Pause 버튼 표시에 사용)
 
     LaunchedEffect(isPlaying) {
-        if(isPlaying){
+        if (isPlaying) {
             viewModel.startTrackingPlayback()
-        }else{
+        } else {
             viewModel.stopTrackingPlayback() // 직접 멈추는 함수 필요 (Job 취소용)
         }
     }
@@ -66,6 +66,7 @@ fun MusicListScreen(
                     musicItemClick = {
                         mainViewModel.setSelectedMusic(selectedMusic)
                         mainViewModel.setSearchedMusicList(musicList)
+                        mainViewModel.setIsComeFromBottomPlayer(false)
                         navController.navigate("musicPlay")
                     })
             }
@@ -80,7 +81,11 @@ fun MusicListScreen(
                     viewModel = viewModel,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    clickEvent = {
+                        mainViewModel.setIsComeFromBottomPlayer(true)
+                        navController.navigate("musicPlay")
+                    }
                 )
             }
         }

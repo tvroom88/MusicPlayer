@@ -1,6 +1,7 @@
 package com.aio.fe_music_player.screens.bottomplay
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -35,7 +36,8 @@ fun BottomPlayer(
     controller: MediaController,
     isPlaying: Boolean,
     viewModel: MusicPlayerViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    clickEvent: () -> Unit
 ) {
     val curMediaItem = controller.currentMediaItem
     val currentPosition by viewModel.currentPosition.collectAsState()
@@ -44,8 +46,10 @@ fun BottomPlayer(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .wrapContentHeight(),
-        color = Color.DarkGray
+            .wrapContentHeight()
+            .clickable { clickEvent() },
+        color = Color.DarkGray,
+
     ) {
         Column {
             Row(

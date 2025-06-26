@@ -2,6 +2,7 @@ package com.aio.fe_music_player.screens.mainscreen
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
@@ -10,8 +11,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
@@ -19,7 +18,6 @@ import com.aio.fe_music_player.data.model.MusicFolder
 import com.aio.fe_music_player.screens.bottomplay.BottomPlayer
 import com.aio.fe_music_player.screens.mainscreen.folder.Folder
 import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayerViewModel
-import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -41,9 +39,9 @@ fun MainContent(
 
 
     LaunchedEffect(isPlaying) {
-        if(isPlaying){
+        if (isPlaying) {
             mainPlayerViewModel.startTrackingPlayback()
-        }else{
+        } else {
             mainPlayerViewModel.stopTrackingPlayback() // 직접 멈추는 함수 필요 (Job 취소용)
         }
     }
@@ -61,24 +59,21 @@ fun MainContent(
             }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.weight(1f)) {
+            when (selectedTab) {
+                "폴더" -> Folder(
+                    folderList = folderList,
+                    onFolderClick = { folder ->
+                        val jsonList = Uri.encode(Json.encodeToString(folder.musicFile.toList()))
+                        navController.navigate("musicList/$jsonList")
+                    })
 
-        when (selectedTab) {
-            "폴더" -> Folder(
-                folderList = folderList,
-                onFolderClick = { folder ->
-                    val jsonList = Uri.encode(Json.encodeToString(folder.musicFile.toList()))
-                    navController.navigate("musicList/$jsonList")
-                })
-
-            "노래" -> Text(color = Color.White, text = "노래")
-            else -> Text(color = Color.White, text = "Unknown tab")
+                "노래" -> Text(color = Color.White, text = "노래")
+                else -> Text(color = Color.White, text = "Unknown tab")
+            }
         }
 
-        // 하단 고정 플레이어
         if (controller?.currentMediaItem != null) {
             controller?.let {
                 BottomPlayer(
@@ -86,8 +81,11 @@ fun MainContent(
                     isPlaying = isPlaying,
                     viewModel = mainPlayerViewModel,
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    clickEvent = {
+                        mainViewModel.setIsComeFromBottomPlayer(true)
+                        navController.navigate("musicPlay")
+                    }
                 )
             }
         }

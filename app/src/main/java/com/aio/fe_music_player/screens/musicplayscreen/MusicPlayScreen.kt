@@ -50,6 +50,7 @@ fun MusicPlayScreen(
      */
     val musicData by mainViewModel.selectedMusic.collectAsState()
     val musicList by mainViewModel.searchedMusicList.collectAsState()
+    val isComeFromBottomPlayer by mainViewModel.isComeFromBottomPlayer.collectAsState() // 현재 재생되고 있는 음원의 Uri 저장
 
     val controller by viewModel.controller.collectAsState()
     val isPlaying by viewModel.isPlaying.collectAsState() // 현재 play 중인지 체크 (Play 혹은 Pause 버튼 표시에 사용)
@@ -67,13 +68,15 @@ fun MusicPlayScreen(
 
     LaunchedEffect(musicData) {
         // Music Player에 Music 세팅 + 재생
-        musicData?.let { viewModel.setMusic(musicList, it) }
+        if (!isComeFromBottomPlayer) {
+            musicData?.let { viewModel.setMusic(musicList, it) }
+        }
     }
 
     LaunchedEffect(isPlaying) {
-        if(isPlaying){
+        if (isPlaying) {
             viewModel.startTrackingPlayback()
-        }else{
+        } else {
             viewModel.stopTrackingPlayback() // 직접 멈추는 함수 필요 (Job 취소용)
         }
     }
@@ -103,8 +106,9 @@ fun MusicPlayScreen(
     ) {
 
         // Title : Music Name
+
         Text(
-            text = currentMusic?.name ?: "",
+            text = controller?.mediaMetadata?.title.toString() ?: "",
             style = MaterialTheme.typography.headlineMedium,
             color = Color.White
         )

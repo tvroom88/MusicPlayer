@@ -32,6 +32,10 @@ class MainViewModel(private val musicRepository: MusicRepository) : ViewModel() 
     private val _searchedMusicList = MutableStateFlow<List<MusicData>>(emptyList())
     val searchedMusicList: StateFlow<List<MusicData>> = _searchedMusicList
 
+    // MusicList가 변경되었는지 확인하기 위한 부분 -> BottomPlayer 클릭시는 음악 재생이 그대로 진행되어야 한다.
+    private val _isComeFromBottomPlayer = MutableStateFlow(true)
+    val isComeFromBottomPlayer: StateFlow<Boolean> = _isComeFromBottomPlayer
+
     fun updateAudioPermission(granted: Boolean) {
         _hasAudioPermission.value = granted
     }
@@ -49,8 +53,12 @@ class MainViewModel(private val musicRepository: MusicRepository) : ViewModel() 
         _selectedMusic.value = music
     }
 
-    fun setSearchedMusicList(searchedMusicList : List<MusicData>){
+    fun setSearchedMusicList(searchedMusicList: List<MusicData>) {
         _searchedMusicList.value = searchedMusicList
+    }
+
+    fun setIsComeFromBottomPlayer(isComeFromBottomPlayer:Boolean){
+        _isComeFromBottomPlayer.value = isComeFromBottomPlayer
     }
 
 }
