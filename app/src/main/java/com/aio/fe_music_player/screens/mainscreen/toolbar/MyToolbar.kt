@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,7 +23,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun MyToolbar(
-    onNavigationClick: () -> Unit = {},
+    onSearchClick: () -> Unit = {},
     onActionClick: () -> Unit = {}
 ) {
     Row(
@@ -47,17 +48,21 @@ fun MyToolbar(
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "YouTube",
-                tint = Color.White
-            )
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = "Settings",
-                tint = Color.White
-            )
-        }
+            IconButton(onClick = { onSearchClick() }) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search",
+                    tint = Color.White,
+                )
+            }
 
+            IconButton(onClick = { /* 클릭 이벤트 처리 */ }) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings",
+                    tint = Color.White
+                )
+            }
+        }
     }
 }

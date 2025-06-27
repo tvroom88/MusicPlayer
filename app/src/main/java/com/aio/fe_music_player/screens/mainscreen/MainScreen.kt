@@ -1,6 +1,7 @@
 package com.aio.fe_music_player.screens.mainscreen
 
 import android.app.Activity
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,11 +10,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +29,7 @@ import androidx.navigation.NavController
 import com.aio.fe_music_player.screens.mainscreen.tag.MyTag
 import com.aio.fe_music_player.screens.mainscreen.toolbar.MyToolbar
 import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayerViewModel
+import kotlinx.coroutines.launch
 
 /**
  *  - MyToolbar
@@ -34,11 +39,14 @@ import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayerViewModel
 @Composable
 fun MainScreen(
     mainViewModel: MainViewModel,
-    mainPlayerViewModel: MusicPlayerViewModel,
+    musicPlayerViewModel: MusicPlayerViewModel,
     navController: NavController
 ) {
 
     val hasAudioPermission by mainViewModel.hasAudioPermission.collectAsState()
+
+    // 음악을 한 번만 로드했는지 체크
+    var loadedOnce by rememberSaveable { mutableStateOf(false) }
 
     // Status Bar 아이콘을 흰색으로 처리하는 부분
     SetSystemBarsDarkIcons(useDarkIcons = false)
@@ -47,9 +55,31 @@ fun MainScreen(
     val tabs = listOf("폴더", "나를 위한", "노래", "재생 목록")
     var selectedTab by remember { mutableStateOf("폴더") }
 
+
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(hasAudioPermission) {
+        if (hasAudioPermission && !loadedOnce) {
+            Log.d("HereHereHere", "hasAudioPermission : $hasAudioPermission")
+
+            loadedOnce = true // 다시 들어와도 재실행 방지
+
+            // 음악 로드
+            mainViewModel.loadMusic()
+
+            // controller 초기화
+            scope.launch {
+                musicPlayerViewModel.initController()
+            }
+        }
+
+    }
+
+
     Column {
         // Toolbar 부분
-        MyToolbar()
+        MyToolbar(onSearchClick = {
+            navController.navigate("search")
+        })
         Spacer(modifier = Modifier.height(20.dp)) // 위쪽 마진 효과
 
         // Tag 부분
@@ -64,7 +94,7 @@ fun MainScreen(
         if (hasAudioPermission) {
             MainContent(
                 mainViewModel,
-                mainPlayerViewModel,
+                musicPlayerViewModel,
                 selectedTab,
                 navController
             )

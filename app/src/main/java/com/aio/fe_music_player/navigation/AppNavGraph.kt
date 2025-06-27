@@ -11,8 +11,8 @@ import androidx.navigation.navArgument
 import com.aio.fe_music_player.data.model.MusicData
 import com.aio.fe_music_player.screens.mainscreen.MainScreen
 import com.aio.fe_music_player.screens.mainscreen.MainViewModel
+import com.aio.fe_music_player.screens.mainscreen.toolbar.inside.SearchScreen
 import com.aio.fe_music_player.screens.musiclistscreen.MusicListScreen
-import com.aio.fe_music_player.screens.musiclistscreen.MusicListViewModel
 import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayScreen
 import com.aio.fe_music_player.screens.musicplayscreen.MusicPlayerViewModel
 import kotlinx.serialization.json.Json
@@ -32,7 +32,15 @@ fun AppNavGraph(
         composable("home") {
             MainScreen(
                 mainViewModel = mainViewModel,
-                mainPlayerViewModel = musicPlayerViewModel,
+                musicPlayerViewModel = musicPlayerViewModel,
+                navController = navController
+            )
+        }
+
+        // search
+        composable("search") {
+            SearchScreen(
+                mainViewModel = mainViewModel,
                 navController = navController
             )
         }
@@ -44,34 +52,20 @@ fun AppNavGraph(
             }) // List 넘겨주는 방식
         ) { backStackEntry ->
 
-            val musicListViewModel: MusicListViewModel = viewModel()
             val json = backStackEntry.arguments?.getString("musicListJson") ?: "[]"
             val musicList = Json.decodeFromString<List<MusicData>>(Uri.decode(json))
             MusicListScreen(
                 musicList = musicList,
-                musicListViewModel,
-                navController,
+                mainViewModel = mainViewModel,
+                navController = navController,
                 viewModel = musicPlayerViewModel
             )
         }
 
-        composable(
-            "musicPlay/{musicJson}/{musicListJson}",
-            arguments = listOf(
-                navArgument("musicJson") { type = NavType.StringType },
-                navArgument("musicListJson") { type = NavType.StringType }
-            )
-        ) { backStackEntry ->
-            val musicJson = backStackEntry.arguments?.getString("musicJson") ?: "{}"
-            val musicData = Json.decodeFromString<MusicData>(Uri.decode(musicJson))
-
-            val musicListJson = backStackEntry.arguments?.getString("musicListJson") ?: "[]"
-            val musicList = Json.decodeFromString<List<MusicData>>(Uri.decode(musicListJson))
-
+        composable("musicPlay") {
             MusicPlayScreen(
-                musicData = musicData,
-                musicList = musicList,
-                viewModel = musicPlayerViewModel
+                viewModel = musicPlayerViewModel,
+                mainViewModel = mainViewModel
             )
         }
     }
