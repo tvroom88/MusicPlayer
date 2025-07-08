@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.ComponentName
 import android.net.Uri
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.concurrent.futures.await
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,7 @@ import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.aio.fe_music_player.data.model.MusicData
@@ -53,6 +55,7 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     // Controller 초기화
+    @OptIn(UnstableApi::class)
     suspend fun initController() {
 
         val sessionToken =
@@ -99,19 +102,7 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-//    fun startTrackingPlayback(isPlay : Boolean) {
-//        viewModelScope.launch {
-//            while (isPlay) {
-//                if (_isPlaying.value) {
-//                    val mediaController = _controller.value
-//                    _currentPosition.value = mediaController?.currentPosition ?: 0L
-//                    _duration.value = mediaController?.duration?.takeIf { it > 0 } ?: 0L
-//                }
-//                Log.d("TestTestTest","111111")
-//                delay(500)
-//            }
-//        }
-//    }
+
 
     fun startTrackingPlayback() {
         if (trackingJob?.isActive == true) return
@@ -121,7 +112,6 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
                 _controller.value?.let { mediaController ->
                     _currentPosition.value = mediaController.currentPosition
                     _duration.value = mediaController.duration.takeIf { it > 0 } ?: 0L
-                    Log.d("CheckCheckCheck", "1111")
                 }
 
                 delay(500)
@@ -138,5 +128,11 @@ class MusicPlayerViewModel(application: Application) : AndroidViewModel(applicat
         super.onCleared()
         controller.value?.release()
         _controller.value = null
+    }
+
+    fun resetPlayerState() {
+        _currentPosition.value = 0L
+        _duration.value = 0L
+        // 추가로 필요한 상태 초기화
     }
 }
